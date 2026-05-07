@@ -1,0 +1,5 @@
+platform,T1_us,t_gate_ns,source
+IBM Quantum (Eagle),100,50,"Kim et al., Nature 618 500-505 (2023). https://doi.org/10.1038/s41586-023-06096-3"
+Google Quantum AI (Sycamore),15,12,"Arute et al., Nature 574 505-510 (2019). https://doi.org/10.1038/s41586-019-1666-5"
+Intel Tunnel Falls (spin),1000,1000,"Zwerver et al., Nature Electronics 5 184-190 (2022). https://doi.org/10.1038/s41928-022-00727-9"
+IonQ Aria (trapped ion),10000000,135000,"IonQ Aria system specifications (2023). https://ionq.com/quantum-systems/aria; Wright et al., Nat. Commun. 10 5464 (2019). https://doi.org/10.1038/s41467-019-13534-2"
