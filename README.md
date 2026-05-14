@@ -7,7 +7,7 @@ This project quantifies how $T_1$ relaxation (amplitude damping) degrades Grover
 ## Research Questions
 
 - **Q1**: How does qubit decay suppress Grover's success probability as a function of circuit depth, and does the suppression rate scale with $N$?
-- **Q2**: At what circuit depth does each platform's Grover search lose its quantum advantage over classical random guessing, for varying $N$?
+- **Q2**: How does noise-induced fidelity degradation at $k_\text{opt}$ scale with search space size $N$, and at what scale does each platform's advantage become substantially impaired?
 - **Q3**: Can the $T_1/t_\text{gate}$ ratio alone rank the four platforms by Grover search fidelity?
 
 ## Hardware Platforms
@@ -27,7 +27,8 @@ CS480A8-Final-Project/
 │   ├── grover/
 │   │   └── grover.py          # optimal_iterations, ideal_success_probability
 │   └── noise/
-│       └── amplitude_damping.py  # gamma_from_specs
+│       ├── amplitude_damping.py  # gamma_from_specs
+│       └── analytic_noisy.py     # noisy_success_probability
 ├── data/
 │   ├── hardware_specs/
 │   │   └── hardware_specs.csv
@@ -67,9 +68,11 @@ The amplitude damping channel parameter is derived from hardware specifications:
 
 $$\gamma = 1 - \exp\!\left(-\frac{t_\text{gate}}{T_1 \times 1000}\right)$$
 
-Noisy Grover circuits use `qml.device("default.mixed")`. `qml.AmplitudeDamping(gamma, wires=i)` is applied to every qubit after the initial Hadamard layer and after each oracle and diffuser sub-layer. The quantum advantage threshold is the first iteration $k$ at which $P(\text{success}) < 1/N$.
+Noisy Grover circuits use `qml.device("default.mixed")`. `qml.AmplitudeDamping(gamma, wires=i)` is applied to every qubit after the initial Hadamard layer and after each oracle and diffuser sub-layer.
 
-Large-N results ($N \geq 64$) use a closed-form analytic model validated against PennyLane simulations at $N \in \{4, 8, 16, 32\}$: $P(k, N, \gamma) = (1-\gamma)^{n \cdot (2k+1)} \cdot \sin^2\!\bigl((2k+1)\theta\bigr)$.
+Notebook 02 sweeps $N \in \{4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192\}$ (all powers of 2 from $2^2$ to $2^{13}$). The small-N tier ($N \leq 32$) uses PennyLane `default.mixed` exact simulation to validate the analytic model; the large-N tier ($N \geq 64$) uses the closed-form analytic model exclusively, as density-matrix simulation becomes computationally prohibitive.
+
+The analytic model: $P(k, N, \gamma) = (1-\gamma)^{n \cdot (2k+1)} \cdot \sin^2\!\bigl((2k+1)\theta\bigr)$. The primary Q2 metric is the fidelity ratio $P_\text{noisy}(k_\text{opt}) / P_\text{ideal}(k_\text{opt})$, which isolates noise-induced degradation from the algorithm's oscillation structure.
 
 ## Data Sources
 
