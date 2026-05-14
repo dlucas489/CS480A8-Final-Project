@@ -2,13 +2,80 @@
 
 **CS 480 — Final Project**
 
-## Overview
+This project quantifies how $T_1$ relaxation (amplitude damping) degrades Grover's algorithm across four quantum hardware platforms, and evaluates whether the $T_1/t_\text{gate}$ ratio predicts Grover search fidelity.
 
-This project investigates **Grover's Algorithm** under the effect of **amplitude damping (qubit decay)**, quantifying how T₁ relaxation degrades search efficacy across four distinct quantum hardware architectures:
+## Research Questions
 
-| Platform | Technology |
-|---|---|
-| IBM Quantum | Superconducting qubits |
+- **Q1**: How does qubit decay suppress Grover's success probability as a function of circuit depth, and does the suppression rate scale with $N$?
+- **Q2**: At what circuit depth does each platform's Grover search lose its quantum advantage over classical random guessing, for varying $N$?
+- **Q3**: Can the $T_1/t_\text{gate}$ ratio alone rank the four platforms by Grover search fidelity?
+
+## Hardware Platforms
+
+| Platform | Technology | $T_1$ | $t_\text{gate}$ |
+|---|---|---|---|
+| IBM Quantum Eagle | Superconducting | 100 µs | 50 ns |
+| Google Sycamore | Superconducting | 15 µs | 12 ns |
+| Intel Tunnel Falls | Spin qubit | 1,000 µs | 1,000 ns |
+| IonQ Aria | Trapped ion | 10,000,000 µs | 135,000 ns |
+
+## File Structure
+
+```
+CS480A8-Final-Project/
+├── src/
+│   ├── grover/
+│   │   └── grover.py          # optimal_iterations, ideal_success_probability
+│   └── noise/
+│       └── amplitude_damping.py  # gamma_from_specs
+├── data/
+│   ├── hardware_specs/
+│   │   └── hardware_specs.csv
+│   └── results/
+│       └── thresholds.csv     # written by notebook 02
+├── results/
+│   └── figures/               # PNGs written by notebooks
+├── notebooks/
+│   ├── 01_grover_ideal.ipynb
+│   ├── 02_noisy_simulation.ipynb
+│   └── 03_platform_comparison.ipynb
+├── requirements.txt
+├── README.md
+├── LICENSE.md
+└── .gitignore
+```
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+## Running
+
+Execute notebooks in order:
+
+1. `01_grover_ideal.ipynb` — noiseless PennyLane simulation; cross-validates against analytic formula
+2. `02_noisy_simulation.ipynb` — amplitude-damped simulation; writes `data/results/thresholds.csv`
+3. `03_platform_comparison.ipynb` — loads thresholds; produces scatter and bar plots; answers Q1–Q3
+
+All figures are saved to `results/figures/`.
+
+## Methodology
+
+The amplitude damping channel parameter is derived from hardware specifications:
+
+$$\gamma = 1 - \exp\!\left(-\frac{t_\text{gate}}{T_1 \times 1000}\right)$$
+
+Noisy Grover circuits use `qml.device("default.mixed")`. `qml.AmplitudeDamping(gamma, wires=i)` is applied to every qubit after the initial Hadamard layer and after each oracle and diffuser sub-layer. The quantum advantage threshold is the first iteration $k$ at which $P(\text{success}) < 1/N$.
+
+## Data Sources
+
+- IBM: Kim et al., *Nature* 618, 500–505 (2023)
+- Google: Arute et al., *Nature* 574, 505–510 (2019)
+- Intel: Zwerver et al., *Nature Electronics* 5, 184–190 (2022)
+- IonQ: Wright et al., *Nature Communications* 10, 5464 (2019)
+
 | Google Quantum AI | Superconducting qubits |
 | Intel Tunnel Falls | Silicon spin qubits |
 | IonQ Aria | Trapped ion qubits |
